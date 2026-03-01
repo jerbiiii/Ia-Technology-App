@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Groq Key ###
+backend/ia-service/groq_key.txt
