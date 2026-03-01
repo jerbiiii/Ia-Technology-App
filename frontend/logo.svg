@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fond cercle gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066b4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003d6e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eb3700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c42d00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fond -->
+  <circle cx="32" cy="32" r="32" fill="url(#bg)" />
+
+  <!-- Nœuds du réseau neuronal -->
+  <!-- Couche gauche -->
+  <circle cx="14" cy="20" r="4" fill="white" opacity="0.9"/>
+  <circle cx="14" cy="32" r="4" fill="white" opacity="0.9"/>
+  <circle cx="14" cy="44" r="4" fill="white" opacity="0.9"/>
+
+  <!-- Couche centrale -->
+  <circle cx="32" cy="14" r="4" fill="url(#accent)"/>
+  <circle cx="32" cy="26" r="4" fill="url(#accent)"/>
+  <circle cx="32" cy="38" r="4" fill="url(#accent)"/>
+  <circle cx="32" cy="50" r="4" fill="url(#accent)"/>
+
+  <!-- Couche droite -->
+  <circle cx="50" cy="24" r="4" fill="white" opacity="0.9"/>
+  <circle cx="50" cy="40" r="4" fill="white" opacity="0.9"/>
+
+  <!-- Connexions gauche → centre -->
+  <line x1="18" y1="20" x2="28" y2="14" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="18" y1="20" x2="28" y2="26" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="18" y1="32" x2="28" y2="26" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="18" y1="32" x2="28" y2="38" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="18" y1="44" x2="28" y2="38" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="18" y1="44" x2="28" y2="50" stroke="white" stroke-width="1.2" opacity="0.4"/>
+
+  <!-- Connexions centre → droite -->
+  <line x1="36" y1="14" x2="46" y2="24" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="36" y1="26" x2="46" y2="24" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="36" y1="26" x2="46" y2="40" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="36" y1="38" x2="46" y2="24" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="36" y1="38" x2="46" y2="40" stroke="white" stroke-width="1.2" opacity="0.4"/>
+  <line x1="36" y1="50" x2="46" y2="40" stroke="white" stroke-width="1.2" opacity="0.4"/>
+</svg>

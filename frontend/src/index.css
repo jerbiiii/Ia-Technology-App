@@ -1,0 +1,18 @@
+/*
+ * index.css — minimal reset only
+ * ✅ FIX: suppression du thème sombre par défaut qui entrait en conflit
+ *         avec le thème clair défini dans src/styles/global.css
+ * Le design complet (couleurs, typographie, composants) est dans global.css.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
