@@ -172,10 +172,11 @@ export default function ChatWidget() {
 
     // Calcul du rôle API
     const userRole = isAuthenticated
-        ? (user?.role === 'MODERATEUR' ? 'MODERATOR' : user?.role || 'USER')
+        ? (user?.role === 'MODERATEUR' ? 'MODERATOR' :
+            (user?.role === 'UTILISATEUR' ? 'USER' : user?.role || 'USER'))
         : 'VISITOR';
 
-    const roleDisplay = user?.role || 'VISITOR';
+    const roleDisplay = user?.role === 'UTILISATEUR' ? 'USER' : (user?.role || 'VISITOR');
     const roleCfg = ROLE_CONFIG[roleDisplay] || ROLE_CONFIG.VISITOR;
 
     const [open, setOpen] = useState(false);

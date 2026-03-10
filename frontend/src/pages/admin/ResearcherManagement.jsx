@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import researcherService from '../../services/researcher.service';
 import domainService from '../../services/domain.service';
+import userService from '../../services/user.service';
 import './ResearcherManagement.css';
 
 const ResearcherManagement = () => {
@@ -10,6 +11,7 @@ const ResearcherManagement = () => {
     const formRef = useRef(null);
     const [researchers, setResearchers] = useState([]);
     const [domains, setDomains] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchDomain, setSearchDomain] = useState('');
@@ -43,12 +45,14 @@ const ResearcherManagement = () => {
 
     const fetchData = async () => {
         try {
-            const [resData, domData] = await Promise.all([
+            const [resData, domData, usersData] = await Promise.all([
                 researcherService.getAll(),
-                domainService.getAll()
+                domainService.getAll(),
+                userService.getAll()
             ]);
             setResearchers(resData);
             setDomains(domData);
+            setUsers(usersData);
         } catch (error) {
             console.error('Erreur chargement:', error);
         } finally {
@@ -79,6 +83,8 @@ const ResearcherManagement = () => {
             } else {
                 setFormData({ ...formData, autresDomainesIds: current.filter(d => d !== id) });
             }
+        } else if (name === 'userId' || name === 'domainePrincipalId') {
+            setFormData({ ...formData, [name]: value ? parseInt(value) : null });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -214,6 +220,15 @@ const ResearcherManagement = () => {
                                     <option value="">Sélectionner</option>
                                     {domains.map(d => (
                                         <option key={d.id} value={d.id}>{d.nom}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Compte Utilisateur lié</label>
+                                <select name="userId" value={formData.userId || ''} onChange={handleInputChange}>
+                                    <option value="">Aucun compte lié</option>
+                                    {users.map(u => (
+                                        <option key={u.id} value={u.id}>{u.prenom} {u.nom} ({u.email})</option>
                                     ))}
                                 </select>
                             </div>

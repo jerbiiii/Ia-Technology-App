@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.Resource;
@@ -36,21 +37,26 @@ import java.io.IOException;
 @RequestMapping("/api/public")
 public class PublicController {
 
-    @Autowired private PublicationService publicationService;
-    @Autowired private PublicationRepository publicationRepository;
-    @Autowired private ResearcherService researcherService;
-    @Autowired private DomainService domainService;
-    @Autowired private ActualiteService actualiteService;
-    @Autowired private AuditLogService auditLogService;
+    @Autowired
+    private PublicationService publicationService;
+    @Autowired
+    private PublicationRepository publicationRepository;
+    @Autowired
+    private ResearcherService researcherService;
+    @Autowired
+    private DomainService domainService;
+    @Autowired
+    private ActualiteService actualiteService;
+    @Autowired
+    private AuditLogService auditLogService;
 
     // ══════════════════════ PUBLICATIONS ══════════════════════
 
     /** GET /api/public/publications?page=0&size=10 */
     @GetMapping("/publications")
     public ResponseEntity<Page<PublicationResponse>> getAllPublications(
-            @RequestParam(defaultValue = "0")  int page,
-            @RequestParam(defaultValue = "10") int size) {
-
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("datePublication").descending());
         Page<Publication> pageResult = publicationRepository.findAll(pageable);
         return ResponseEntity.ok(pageResult.map(publicationService::convertToResponse));
@@ -58,7 +64,7 @@ public class PublicController {
 
     /** GET /api/public/publications/{id} */
     @GetMapping("/publications/{id}")
-    public ResponseEntity<PublicationResponse> getPublicationById(@PathVariable Long id) {
+    public ResponseEntity<PublicationResponse> getPublicationById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(publicationService.getPublicationById(id));
     }
 
@@ -67,7 +73,7 @@ public class PublicController {
      * Téléchargement public du fichier PDF associé à une publication.
      */
     @GetMapping("/publications/{id}/download")
-    public ResponseEntity<Resource> downloadPublicationPublic(@PathVariable Long id) throws IOException {
+    public ResponseEntity<Resource> downloadPublicationPublic(@PathVariable("id") Long id) throws IOException {
         auditLogService.log("DOWNLOAD", "PUBLICATION", id,
                 "Téléchargement public du fichier PDF");
         return publicationService.downloadFile(id);
@@ -75,27 +81,26 @@ public class PublicController {
 
     /**
      * GET /api/public/publications/search?keyword=...&domaineId=...&chercheur=...
-     * Recherche multicritères avec intersection des résultats.
+     * Recherche multicritères avec intersection des résultats, retournant un objet
+     * Page.
      */
     @GetMapping("/publications/search")
-    public ResponseEntity<List<PublicationResponse>> searchPublications(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Long domaineId,
-            @RequestParam(required = false) String chercheur,
-            @RequestParam(defaultValue = "0")  int page,
-            @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<Page<PublicationResponse>> searchPublications(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "domaineId", required = false) Long domaineId,
+            @RequestParam(name = "chercheur", required = false) String chercheur,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        boolean hasKeyword   = keyword   != null && !keyword.isBlank();
-        boolean hasDomaine   = domaineId != null;
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasDomaine = domaineId != null;
         boolean hasChercheur = chercheur != null && !chercheur.isBlank();
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by("datePublication").descending());
+
         if (!hasKeyword && !hasDomaine && !hasChercheur) {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("datePublication").descending());
-            return ResponseEntity.ok(
-                    publicationRepository.findAll(pageable).stream()
-                            .map(publicationService::convertToResponse)
-                            .collect(Collectors.toList())
-            );
+            Page<Publication> pageResult = publicationRepository.findAll(pageable);
+            return ResponseEntity.ok(pageResult.map(publicationService::convertToResponse));
         }
 
         Set<Publication> results = null;
@@ -113,15 +118,16 @@ public class PublicController {
                     new LinkedHashSet<>(publicationRepository.findByKeywordInTitreOrResume(keyword)));
         }
 
-        List<Publication> list = results == null ? List.of() : List.copyOf(results);
-        int fromIndex = Math.min(page * size, list.size());
-        int toIndex   = Math.min(fromIndex + size, list.size());
+        List<Publication> fullList = results == null ? List.of() : List.copyOf(results);
+        int fromIndex = Math.min((int) pageable.getOffset(), fullList.size());
+        int toIndex = Math.min(fromIndex + pageable.getPageSize(), fullList.size());
 
-        return ResponseEntity.ok(
-                list.subList(fromIndex, toIndex).stream()
-                        .map(publicationService::convertToResponse)
-                        .collect(Collectors.toList())
-        );
+        List<PublicationResponse> content = fullList.subList(fromIndex, toIndex).stream()
+                .map(publicationService::convertToResponse)
+                .collect(Collectors.toList());
+
+        Page<PublicationResponse> pageResult = new PageImpl<>(content, pageable, fullList.size());
+        return ResponseEntity.ok(pageResult);
     }
 
     // ══════════════════════ CHERCHEURS ══════════════════════
@@ -134,7 +140,7 @@ public class PublicController {
 
     /** GET /api/public/researchers/{id} */
     @GetMapping("/researchers/{id}")
-    public ResponseEntity<ResearcherDTO> getResearcherById(@PathVariable Long id) {
+    public ResponseEntity<ResearcherDTO> getResearcherById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(researcherService.getResearcherById(id));
     }
 
@@ -144,9 +150,9 @@ public class PublicController {
      */
     @GetMapping("/researchers/search")
     public List<ResearcherDTO> searchResearchers(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String nom,
-            @RequestParam(required = false) String domaine) {
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "nom", required = false) String nom,
+            @RequestParam(name = "domaine", required = false) String domaine) {
 
         String searchNom = (nom != null && !nom.isBlank()) ? nom : keyword;
         return researcherService.search(searchNom, null, domaine);
@@ -162,7 +168,7 @@ public class PublicController {
 
     /** GET /api/public/domains/{id} */
     @GetMapping("/domains/{id}")
-    public ResponseEntity<DomainDTO> getDomainById(@PathVariable Long id) {
+    public ResponseEntity<DomainDTO> getDomainById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(domainService.getDomainById(id));
     }
 
@@ -171,7 +177,7 @@ public class PublicController {
      * GET /api/public/domains/search?keyword=nlp
      */
     @GetMapping("/domains/search")
-    public List<DomainDTO> searchDomains(@RequestParam String keyword) {
+    public List<DomainDTO> searchDomains(@RequestParam("keyword") String keyword) {
         return domainService.searchDomains(keyword);
     }
 
@@ -189,7 +195,8 @@ public class PublicController {
     // ══════════════════════ UTILITAIRE ══════════════════════
 
     private <T> Set<T> intersect(Set<T> base, Set<T> candidate) {
-        if (base == null) return candidate;
+        if (base == null)
+            return candidate;
         base.retainAll(candidate);
         return base;
     }

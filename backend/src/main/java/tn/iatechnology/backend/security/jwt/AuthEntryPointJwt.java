@@ -22,8 +22,13 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
-        logger.error("Unauthorized error: {}", authException.getMessage());
+            AuthenticationException authException) throws IOException, ServletException {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null)
+            ip = request.getRemoteAddr();
+
+        logger.error("Unauthorized error (Source: {}, Path: {}): {}", ip, request.getServletPath(),
+                authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

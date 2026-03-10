@@ -54,9 +54,12 @@ api.interceptors.response.use(
     response => response,
     error => {
         if (error.response?.status === 401 && !isRedirecting) {
-            const isLoginRoute = error.config?.url?.includes('/auth/signin');
+            const url = error.config?.url || '';
+            const isLoginRoute = url.includes('/auth/signin');
+            const isPublicRoute = url.includes('/public/');
 
-            if (!isLoginRoute) {
+            // On ne redirige vers login QUE si ce n'est pas une route publique
+            if (!isLoginRoute && !isPublicRoute) {
                 const token = localStorage.getItem('token');
 
                 if (!token || isTokenExpired(token)) {
@@ -82,4 +85,4 @@ function getCookie(name) {
 export default api;
 
 // Kept for backward-compatibility — no longer needed for the interceptor logic
-export function setLastLoginTime() {}
+export function setLastLoginTime() { }

@@ -3,13 +3,13 @@ import { Link, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import './Publications.css';
 
-const IconSearch   = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>;
-const IconBook     = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
-const IconFilter   = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>;
-const IconCalendar = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
-const IconUser     = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const IconArrow    = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>;
-const IconX        = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconSearch = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>;
+const IconBook = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>;
+const IconFilter = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" /></svg>;
+const IconCalendar = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>;
+const IconUser = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
+const IconArrow = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>;
+const IconX = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>;
 
 const ITEMS_PER_PAGE = 12;
 
@@ -30,8 +30,8 @@ function extractList(data) {
 
 function PublicationCard({ pub }) {
     const authors = Array.isArray(pub.chercheursNoms) ? pub.chercheursNoms : [];
-    const domains = Array.isArray(pub.domainesNoms)  ? pub.domainesNoms  : [];
-    const year    = pub.datePublication ? new Date(pub.datePublication).getFullYear() : null;
+    const domains = Array.isArray(pub.domainesNoms) ? pub.domainesNoms : [];
+    const year = pub.datePublication ? new Date(pub.datePublication).getFullYear() : null;
 
     return (
         <article className="plist-card">
@@ -71,66 +71,73 @@ export default function Publications() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [publications, setPublications] = useState([]);
-    const [domains,      setDomains]      = useState([]);
-    const [loading,      setLoading]      = useState(true);
-    const [total,        setTotal]        = useState(0);
+    const [domains, setDomains] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [total, setTotal] = useState(0);
 
-    const searchQ = searchParams.get('q')      || '';
+    const searchQ = searchParams.get('q') || '';
     const domainF = searchParams.get('domain') || '';
-    const page    = parseInt(searchParams.get('page') || '1', 10);
+    const page = parseInt(searchParams.get('page') || '1', 10);
 
     const [localSearch, setLocalSearch] = useState(searchQ);
+
+    // Chargement initial des domaines pour la sidebar et la résolution d'IDs
+    useEffect(() => {
+        api.get('/public/domains')
+            .then(res => setDomains(Array.isArray(res.data) ? res.data : []))
+            .catch(err => console.error("Erreur domaines:", err));
+    }, []);
 
     useEffect(() => {
         const load = async () => {
             setLoading(true);
             try {
-                const [pubRes, domRes] = await Promise.all([
-                    api.get('/public/publications', { params: { page: page - 1, size: ITEMS_PER_PAGE } }),
-                    api.get('/public/domains'),
-                ]);
-
-                // ✅ BUG 4 FIX : extraction correcte depuis Page object Spring Boot
-                const { list: allPubs, total: serverTotal } = extractList(pubRes.data);
-
-                // Filtrage client-side sur la page courante
-                let filtered = allPubs;
-                if (searchQ) {
-                    const q = searchQ.toLowerCase();
-                    filtered = filtered.filter(p =>
-                        p.titre?.toLowerCase().includes(q) ||
-                        (Array.isArray(p.chercheursNoms) ? p.chercheursNoms : []).some(n => n.toLowerCase().includes(q)) ||
-                        p.resume?.toLowerCase().includes(q)
-                    );
-                }
-                if (domainF) {
-                    filtered = filtered.filter(p =>
-                        (Array.isArray(p.domainesNoms) ? p.domainesNoms : []).some(d =>
-                            d.toLowerCase().includes(domainF.toLowerCase())
-                        )
-                    );
+                // Résolution de l'ID du domaine si un filtre par nom est actif
+                let domainId = null;
+                if (domainF && domains.length > 0) {
+                    const found = domains.find(d => d.nom.toLowerCase() === domainF.toLowerCase());
+                    if (found) domainId = found.id;
                 }
 
-                // Si des filtres locaux sont actifs, le total affiché = nb résultats filtrés
-                const displayTotal = (searchQ || domainF) ? filtered.length : serverTotal;
-                setTotal(displayTotal);
-                setPublications(filtered);
-                setDomains(Array.isArray(domRes.data) ? domRes.data : []);
+                let response;
+                const commonParams = { page: page - 1, size: ITEMS_PER_PAGE };
+
+                if (searchQ || domainF) {
+                    // Utilisation de l'endpoint de recherche (Côté Serveur)
+                    response = await api.get('/public/publications/search', {
+                        params: {
+                            ...commonParams,
+                            keyword: searchQ || undefined,
+                            domaineId: domainId || undefined
+                        }
+                    });
+                } else {
+                    // Liste standard (Côté Serveur)
+                    response = await api.get('/public/publications', { params: commonParams });
+                }
+
+                const { list, total: serverTotal } = extractList(response.data);
+                setPublications(list);
+                setTotal(serverTotal);
             } catch (e) {
-                console.error(e);
+                console.error("Erreur chargement publications:", e);
                 setPublications([]);
                 setTotal(0);
             } finally {
                 setLoading(false);
             }
         };
-        load();
-    }, [searchQ, domainF, page]);
+
+        // On attend que les domaines soient chargés pour pouvoir résoudre l'ID si domainF est présent
+        if (!domainF || (domainF && domains.length > 0)) {
+            load();
+        }
+    }, [searchQ, domainF, page, domains.length]);
 
     const setParam = (key, value) => {
         const next = new URLSearchParams(searchParams);
         if (value) next.set(key, value);
-        else       next.delete(key);
+        else next.delete(key);
         next.delete('page');
         setSearchParams(next);
     };
@@ -197,7 +204,7 @@ export default function Publications() {
                                     </div>
                                 )}
                                 <button className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start', fontSize: '.8rem', color: 'var(--color-error)' }}
-                                        onClick={() => { setLocalSearch(''); setSearchParams({}); }}>
+                                    onClick={() => { setLocalSearch(''); setSearchParams({}); }}>
                                     Effacer tout
                                 </button>
                             </div>
@@ -210,7 +217,7 @@ export default function Publications() {
                             <div className="plist-sidebar__domains">
                                 {domains.map((d, i) => (
                                     <button key={i} className={`plist-domain-btn ${domainF === d.nom ? 'active' : ''}`}
-                                            onClick={() => setParam('domain', domainF === d.nom ? '' : d.nom)}>
+                                        onClick={() => setParam('domain', domainF === d.nom ? '' : d.nom)}>
                                         {d.nom}
                                     </button>
                                 ))}
