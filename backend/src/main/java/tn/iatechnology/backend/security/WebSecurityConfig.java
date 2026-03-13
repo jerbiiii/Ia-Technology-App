@@ -52,7 +52,8 @@ public class WebSecurityConfig {
 
         @Bean
         public DaoAuthenticationProvider authenticationProvider() {
-                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+                authProvider.setUserDetailsService(userDetailsService);
                 authProvider.setPasswordEncoder(passwordEncoder());
                 return authProvider;
         }
@@ -107,7 +108,7 @@ public class WebSecurityConfig {
                                                                                                 +
                                                                                                 "font-src 'self' data:; "
                                                                                                 +
-                                                                                                "connect-src 'self'")))
+                                                                                                "connect-src 'self' http://localhost:8080 http://localhost:5000; ")))
 
                                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
 

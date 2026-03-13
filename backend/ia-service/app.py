@@ -13,22 +13,33 @@ CORS(app)
 # CONFIGURATION LLM (GROQ API)
 # ─────────────────────────────────────────────
 
-# Lire la clé depuis le fichier
-with open("groq_key.txt", "r") as f:
-    GROQ_API_KEY = f.read().strip()  # retire les espaces ou sauts de ligne
+# Lire la clé
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
-print("Clé Groq chargée avec succès !")  # juste pour vérifier
+if not GROQ_API_KEY:
+    if os.path.exists("groq_key.txt"):
+        with open("groq_key.txt", "r") as f:
+            GROQ_API_KEY = f.read().strip()
+    else:
+        print("ATTENTION : 'groq_key.txt' est manquant et GROQ_API_KEY n'est pas définie.")
+        GROQ_API_KEY = "dummy_key_please_replace"
+
+print(f"Clé Groq chargée : {'...' + GROQ_API_KEY[-4:] if GROQ_API_KEY and len(GROQ_API_KEY) > 4 else GROQ_API_KEY}")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile") 
 
-groq_client = Groq(api_key=GROQ_API_KEY)
+try:
+    groq_client = Groq(api_key=GROQ_API_KEY)
+except Exception as e:
+    print(f"Erreur d'initialisation Groq : {e}")
+    groq_client = None
 
 # ─────────────────────────────────────────────
 # CHARGEMENT MODÈLE EMBEDDING (BGE-M3)
 # ─────────────────────────────────────────────
 
-print("Chargement du modèle BGE-M3...")
+print("Chargement du modele BGE-M3...")
 embedder = SentenceTransformer("BAAI/bge-m3")
-print("Modèle chargé ✅")
+print("Modele charge")
 
 # ─────────────────────────────────────────────
 # SYSTEM PROMPT MULTI-ACTEURS
@@ -203,6 +214,12 @@ def call_groq(messages, system_with_context):
     full_messages = [{"role": "system", "content": system_with_context}] + messages
 
     try:
+        if not GROQ_API_KEY or GROQ_API_KEY == "dummy_key_please_replace":
+            return json.dumps({
+                "action": "CHAT",
+                "reply": "⚠️ La clé API Groq est manquante ou invalide. Veuillez configurer 'GROQ_API_KEY' ou créer le fichier 'groq_key.txt' pour activer ARIA."
+            })
+
         response = groq_client.chat.completions.create(
             model=GROQ_MODEL,
             messages=full_messages,
@@ -212,7 +229,10 @@ def call_groq(messages, system_with_context):
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"Erreur Groq : {e}")
-        return "{}"
+        return json.dumps({
+            "action": "CHAT",
+            "reply": f"Désolé, j'ai rencontré une erreur technique lors de la communication avec l'IA : {str(e)}"
+        })
 
 def parse_llm_response(raw):
     try:
@@ -269,6 +289,7 @@ def chat():
         return jsonify({"error": "Message requis"}), 400
 
     user_message = data["message"].strip()
+    print(f"--- Chat Request: {user_message} ---")
     history = data.get("history", [])
     publications = data.get("publications", [])
     user_role = data.get("userRole", "VISITOR")  # ADMIN, MODERATOR, USER, VISITOR
@@ -305,6 +326,7 @@ Publications disponibles ({len(publications)}) :
     llm_messages.append({"role": "user", "content": user_message})
 
     raw = call_groq(llm_messages, system_with_context)
+    print(f"--- Raw LLM Response: {raw} ---")
     parsed = parse_llm_response(raw)
 
     action = parsed.get("action", "CHAT")

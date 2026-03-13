@@ -32,7 +32,6 @@ import java.io.IOException;
  * Le chemin /api/public/** est autorisé via WebSecurityConfig (permitAll).
  * Ces routes n'ont PAS de @PreAuthorize pour éviter tout conflit.
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/public")
 public class PublicController {
