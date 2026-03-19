@@ -68,4 +68,37 @@ public class IaChatService {
         error.put("search_done", false);
         return error;
     }
+    /**
+     * Classifie automatiquement une publication dans un domaine de recherche.
+     * Relaie vers POST /api/ia/classify du service Flask IA (port 5000).
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> classify(Map<String, Object> body) {
+        try {
+            String jsonBody = objectMapper.writeValueAsString(body);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            String url = iaServiceUrl + "/api/ia/classify";
+            logger.info("Appel classification IA : {}", url);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.POST, entity, String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return objectMapper.readValue(response.getBody(), Map.class);
+            }
+
+        } catch (Exception e) {
+            logger.error("Erreur classify IaChatService : {}", e.getMessage());
+        }
+
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", "Le service de classification IA est indisponible.");
+        return error;
+    }
+
 }

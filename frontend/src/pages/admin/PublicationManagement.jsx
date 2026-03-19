@@ -25,6 +25,8 @@ const PublicationManagement = () => {
         fichier: null
     });
     const [filePreview, setFilePreview] = useState(null);
+    const [classifyResult, setClassifyResult] = useState({}); // { [pubId]: { domaine, score } }
+    const [classifyLoading, setClassifyLoading] = useState({});
 
     useEffect(() => {
         fetchData();
@@ -154,6 +156,27 @@ const PublicationManagement = () => {
         setFilePreview(null);
     };
 
+
+    const handleClassify = async (pub) => {
+        setClassifyLoading(prev => ({ ...prev, [pub.id]: true }));
+        try {
+            const res = await fetch('http://localhost:8080/api/public/ia/classify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titre: pub.titre, resume: pub.resume || '' })
+            });
+            const data = await res.json();
+            setClassifyResult(prev => ({
+                ...prev,
+                [pub.id]: { domaine: data.domaine_principal, score: Math.round(data.score * 100) }
+            }));
+        } catch (e) {
+            setClassifyResult(prev => ({ ...prev, [pub.id]: { domaine: 'Erreur IA', score: 0 } }));
+        } finally {
+            setClassifyLoading(prev => ({ ...prev, [pub.id]: false }));
+        }
+    };
+
     const handleDownload = (id) => {
         publicationService.downloadFile(id).catch(err => alert('Erreur téléchargement'));
     };
@@ -199,8 +222,8 @@ const PublicationManagement = () => {
                                 <input type="date" name="datePublication" value={formData.datePublication} onChange={handleInputChange} />
                             </div>
                             <div className="form-group">
-                                <label>DOI</label>
-                                <input type="text" name="doi" value={formData.doi} onChange={handleInputChange} />
+                                <label>DOI (Optionnel)</label>
+                                <input type="text" name="doi" value={formData.doi} onChange={handleInputChange} placeholder="Ex: 10.1000/xyz123" />
                             </div>
                             <div className="form-group">
                                 <label>Chercheurs</label>
@@ -258,7 +281,21 @@ const PublicationManagement = () => {
                         <div className="card-actions">
                             <button onClick={() => handleEdit(pub)} className="btn-edit">Modifier</button>
                             <button onClick={() => handleDelete(pub.id)} className="btn-delete">Supprimer</button>
+                            <button
+                                onClick={() => handleClassify(pub)}
+                                className="btn-classify"
+                                disabled={classifyLoading[pub.id]}
+                                title="Classifier automatiquement par IA"
+                            >
+                                {classifyLoading[pub.id] ? '⏳ Classification...' : '🤖 Classifier IA'}
+                            </button>
                         </div>
+                        {classifyResult[pub.id] && (
+                            <div className="classify-badge">
+                                🏷️ <strong>{classifyResult[pub.id].domaine}</strong>
+                                <span className="classify-score"> ({classifyResult[pub.id].score}% confiance)</span>
+                            </div>
+                        )}
                     </motion.div>
                 ))}
             </div>

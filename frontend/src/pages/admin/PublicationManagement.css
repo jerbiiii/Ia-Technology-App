@@ -218,3 +218,48 @@
     background-color: #0066b4;
     color: white;
 }
+.btn-classify {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s;
+}
+
+.btn-classify:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.btn-classify:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.classify-badge {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-left: 4px solid #7c3aed;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #4c1d95;
+    animation: fadeIn 0.3s ease;
+}
+
+.classify-score {
+    color: #6d28d9;
+    font-size: 0.78rem;
+    margin-left: 4px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

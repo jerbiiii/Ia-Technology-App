@@ -282,6 +282,82 @@ def semantic_search():
 
     return jsonify(results)
 
+# ─────────────────────────────────────────────
+# CLASSIFICATION AUTOMATIQUE DES PUBLICATIONS
+# ─────────────────────────────────────────────
+
+# Domaines avec descriptions enrichies (utilisées pour l'embedding)
+DOMAINS_LABELS = {
+    "NLP / Traitement du Langage Naturel": "natural language processing text classification sentiment analysis named entity recognition transformer BERT GPT language model machine translation",
+    "Vision par ordinateur": "computer vision image recognition object detection convolutional neural network CNN image segmentation face recognition deep learning visual",
+    "Cybersécurité basée sur l'IA": "cybersecurity intrusion detection anomaly detection malware network security threat intelligence adversarial attacks machine learning security",
+    "Machine Learning / Deep Learning": "machine learning deep learning neural network supervised unsupervised reinforcement learning optimization gradient descent classification regression",
+    "Traitement du signal": "signal processing audio speech recognition time series frequency domain feature extraction fourier transform",
+    "Robotique et IA embarquée": "robotics autonomous systems embedded AI real-time control path planning reinforcement learning",
+    "Systèmes de recommandation": "recommendation system collaborative filtering content-based filtering matrix factorization user behavior personalization",
+    "Big Data et Analyse de données": "big data data analysis data mining clustering feature engineering dimensionality reduction statistical learning",
+}
+
+# Cache calculé une seule fois au premier appel
+_domain_emb_cache = None
+
+def get_cached_domain_embeddings():
+    global _domain_emb_cache
+    if _domain_emb_cache is None:
+        print("Calcul des embeddings de domaines pour la classification...")
+        labels = list(DOMAINS_LABELS.keys())
+        descriptions = list(DOMAINS_LABELS.values())
+        embs = embedder.encode(descriptions)
+        _domain_emb_cache = list(zip(labels, embs))
+        print(f"Embeddings calculés pour {len(labels)} domaines")
+    return _domain_emb_cache
+
+
+@app.route("/api/ia/classify", methods=["POST"])
+def classify_publication():
+    """
+    Classification automatique d'une publication dans un domaine de recherche.
+
+    Corps JSON attendu :
+      { "titre": "...", "resume": "...", "topK": 3 }
+
+    Réponse :
+      {
+        "domaine_principal": "NLP / Traitement du Langage Naturel",
+        "score": 0.87,
+        "top_k": [{"domaine": "...", "score": ...}, ...]
+      }
+    """
+    data = request.get_json()
+    if not data or "titre" not in data:
+        return jsonify({"error": "Le champ 'titre' est requis"}), 400
+
+    titre  = data.get("titre",  "").strip()
+    resume = data.get("resume", "").strip()
+    top_k  = int(data.get("topK", 3))
+
+    text = f"{titre}. {resume}" if resume else titre
+
+    pub_emb = embedder.encode(text)
+    domain_embeddings = get_cached_domain_embeddings()
+
+    scores = []
+    for label, dom_emb in domain_embeddings:
+        score = float(cosine_similarity(pub_emb, dom_emb.reshape(1, -1))[0])
+        scores.append({"domaine": label, "score": round(score, 4)})
+
+    scores.sort(key=lambda x: x["score"], reverse=True)
+    top_results = scores[:top_k]
+    best = top_results[0] if top_results else {"domaine": "Non classifiable", "score": 0.0}
+
+    return jsonify({
+        "domaine_principal": best["domaine"],
+        "score": best["score"],
+        "top_k": top_results,
+        "texte_analyse": (text[:150] + "...") if len(text) > 150 else text
+    })
+
+
 @app.route("/api/ia/chat", methods=["POST"])
 def chat():
     data = request.get_json()

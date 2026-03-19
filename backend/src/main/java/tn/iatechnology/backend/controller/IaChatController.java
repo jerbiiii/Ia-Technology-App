@@ -7,6 +7,7 @@ import tn.iatechnology.backend.service.IaChatService;
 
 import java.util.Map;
 
+
 @RestController
 @RequestMapping("/api/public/ia")
 public class IaChatController {
@@ -26,4 +27,18 @@ public class IaChatController {
         Map<String, Object> result = iaChatService.chat(body);
         return ResponseEntity.ok(result);
     }
+    /**
+     * POST /api/public/ia/classify
+     * Classifie automatiquement une publication dans un domaine de recherche.
+     * Accessible sans authentification.
+     */
+    @PostMapping("/classify")
+    public ResponseEntity<Map<String, Object>> classify(@RequestBody Map<String, Object> body) {
+        if (body == null || !body.containsKey("titre")) {
+            return ResponseEntity.badRequest().build();
+        }
+        Map<String, Object> result = iaChatService.classify(body);
+        return ResponseEntity.ok(result);
+    }
+
 }

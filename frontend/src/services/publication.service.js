@@ -24,15 +24,11 @@ class PublicationService {
     }
 
     create(formData) {
-        return api.post('/publications', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        }).then(res => res.data);
+        return api.post('/publications', formData).then(res => res.data);
     }
 
     update(id, formData) {
-        return api.put(`/publications/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        }).then(res => res.data);
+        return api.put(`/publications/${id}`, formData).then(res => res.data);
     }
 
     delete(id) {

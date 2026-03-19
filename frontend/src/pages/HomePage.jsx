@@ -77,7 +77,7 @@ function PublicationCard({ pub, delay = 0 }) {
 function DomainChip({ domain, delay = 0 }) {
     return (
         <Link
-            to={`/search?q=${encodeURIComponent(domain.nom)}`}
+            to={`/search?domaineId=${domain.id}`}
             className="domain-chip anim-fade-up"
             style={{ animationDelay: `${delay}ms` }}
         >
