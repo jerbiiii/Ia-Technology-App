@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { motion } from 'framer-motion';
+
 import './SearchPage.css';
 
 const SearchPage = () => {
@@ -130,7 +132,13 @@ const SearchPage = () => {
                                 : [];
 
                             return (
-                                <div key={pub.id} className="sp-card">
+                                <motion.div 
+                                    key={pub.id} 
+                                    className="sp-card"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.4 }}
+                                >
 
                                     {/* Colonne gauche : contenu */}
                                     <div className="sp-card__body">
@@ -180,7 +188,7 @@ const SearchPage = () => {
                                         )}
                                     </div>
 
-                                </div>
+                                </motion.div>
                             );
                         })}
                     </div>

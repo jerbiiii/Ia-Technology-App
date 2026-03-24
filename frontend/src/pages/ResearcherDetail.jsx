@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../services/api';
 import './ResearcherDetail.css';
 
@@ -57,7 +58,12 @@ const ResearcherDetail = () => {
     const autresDomainesIds = researcher.autresDomainesIds || [];
 
     return (
-        <div className="researcher-detail-page">
+        <motion.div 
+            className="researcher-detail-page"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="researcher-detail__breadcrumb">
                 <Link to="/researchers">← Retour aux chercheurs</Link>
             </div>
@@ -136,7 +142,7 @@ const ResearcherDetail = () => {
                     </section>
                 )}
             </article>
-        </div>
+        </motion.div>
     );
 };
 

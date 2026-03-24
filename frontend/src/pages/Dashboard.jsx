@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
 import researcherService from '../services/researcher.service.js';
 import MyPublications from './dashboard/MyPublications';
 import ResearcherProfile from './dashboard/ResearcherProfile';
@@ -30,7 +31,13 @@ const Dashboard = () => {
     if (loading) return <div className="loader">Chargement...</div>;
 
     return (
-        <div className="dashboard container" style={{ paddingTop: 'calc(var(--navbar-h, 70px) + 32px)' }}>
+        <motion.div 
+            className="dashboard container" 
+            style={{ paddingTop: 'calc(var(--navbar-h, 70px) + 32px)' }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <h1>Tableau de bord</h1>
             <p>Bienvenue, {user?.prenom} {user?.nom} !</p>
 
@@ -71,7 +78,7 @@ const Dashboard = () => {
                     )
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 };
 

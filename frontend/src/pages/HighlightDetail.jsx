@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import highlightService from '../services/highlight.service';
 import './HighlightDetail.css';
 
@@ -61,7 +62,13 @@ const HighlightDetail = () => {
         : null;
 
     return (
-        <div className="highlight-detail-page container" style={{ paddingTop: 'calc(var(--navbar-h, 70px) + 32px)' }}>
+        <motion.div 
+            className="highlight-detail-page container" 
+            style={{ paddingTop: 'calc(var(--navbar-h, 70px) + 32px)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <nav className="highlight-detail-breadcrumb" aria-label="Fil d'Ariane">
                 <Link to="/">Accueil</Link>
                 <span className="highlight-detail-breadcrumb__sep">/</span>
@@ -96,7 +103,7 @@ const HighlightDetail = () => {
                     </Link>
                 </div>
             </article>
-        </div>
+        </motion.div>
     );
 };
 

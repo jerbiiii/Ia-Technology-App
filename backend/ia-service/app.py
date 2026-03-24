@@ -93,8 +93,10 @@ FONCTIONNALITÉS DE L'APPLICATION
 ════════════════════════════════════════
 MODE QUESTIONNAIRE DE RECHERCHE PAR INTÉRÊTS
 ════════════════════════════════════════
-Quand un utilisateur veut trouver des publications ou n'est pas précis dans sa demande,
-tu dois l'interroger ÉTAPE PAR ÉTAPE comme un formulaire intelligent (une seule question à la fois) :
+⚠️ IMPORTANT : Si l'utilisateur donne déjà une requête TRÈS PRÉCISE (ex: "détection cancer", "robotique", ou donne un nom précis comme "Karim"), IGNORE CE QUESTIONNAIRE et lance immédiatement l'action SEARCH.
+Ne lance ce questionnaire QUE SI la demande est VAGUE (ex: "Je cherche des publications", "Montre-moi des articles").
+
+Lorsque la demande est vague, tu dois l'interroger ÉTAPE PAR ÉTAPE comme un formulaire intelligent (une seule question à la fois) :
 
 ÉTAPE 1 - Domaine scientifique :
   "Dans quel domaine souhaitez-vous chercher ?
@@ -141,7 +143,7 @@ FORMAT DE RÉPONSE JSON STRICT
 {
   "action": "QUESTION",
   "step": <numéro_étape>,
-  "reply": "Question posée à l'utilisateur pour préciser ses intérêts."
+  "reply": "Question posée à l'utilisateur... (ATTENTION: utilise STRICTEMENT des '\\n' pour les retours à la ligne afin que le JSON reste valide)"
 }
 
 2️⃣ Pour lancer une recherche sémantique :
@@ -236,13 +238,16 @@ def call_groq(messages, system_with_context):
 
 def parse_llm_response(raw):
     try:
-        return json.loads(raw)
+        return json.loads(raw, strict=False)
     except:
         try:
             start = raw.find("{")
             end = raw.rfind("}") + 1
-            return json.loads(raw[start:end])
-        except:
+            if start != -1 and end != 0:
+                return json.loads(raw[start:end], strict=False)
+            return {"action": "CHAT", "reply": "Erreur de format IA (JSON introuvable)."}
+        except Exception as e:
+            print(f"JSON Parse Error: {e} | Raw: {raw}")
             return {"action": "CHAT", "reply": "Erreur de format IA."}
 
 # ─────────────────────────────────────────────
@@ -402,7 +407,7 @@ Publications disponibles ({len(publications)}) :
     llm_messages.append({"role": "user", "content": user_message})
 
     raw = call_groq(llm_messages, system_with_context)
-    print(f"--- Raw LLM Response: {raw} ---")
+    # print(f"--- Raw LLM Response: {raw} ---")
     parsed = parse_llm_response(raw)
 
     action = parsed.get("action", "CHAT")

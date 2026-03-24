@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import api from '../../services/api';
 import './ResearcherProfile.css';
 
@@ -62,7 +63,11 @@ const ResearcherProfile = ({ researcher }) => {
 
     if (isEditing) {
         return (
-            <div className="profile-edit">
+            <motion.div 
+                className="profile-edit"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+            >
                 <h3>Modifier mon profil</h3>
                 {message && (
                     <div className={`message ${message.includes('succès') ? 'success' : 'error'}`}>
@@ -105,12 +110,16 @@ const ResearcherProfile = ({ researcher }) => {
                         </button>
                     </div>
                 </form>
-            </div>
+            </motion.div>
         );
     }
 
     return (
-        <div className="profile-view">
+        <motion.div 
+            className="profile-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
             <h3>Mon profil chercheur</h3>
             {message && (
                 <div className={`message ${message.includes('succès') ? 'success' : 'error'}`}>
@@ -122,7 +131,7 @@ const ResearcherProfile = ({ researcher }) => {
             <p><strong>Affiliation :</strong> {researcher.affiliation || 'Non renseignée'}</p>
             <p><strong>Domaine principal :</strong> {researcher.domainePrincipalNom || 'Non défini'}</p>
             <button className="btn-edit" onClick={() => setIsEditing(true)}>Modifier</button>
-        </div>
+        </motion.div>
     );
 };
 

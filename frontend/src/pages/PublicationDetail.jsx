@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../services/api';
 import './PublicationDetail.css';
 
@@ -84,7 +85,12 @@ const PublicationDetail = () => {
                 </nav>
 
                 {/* ── Layout 2 colonnes ── */}
-                <div className="pd-layout">
+                <motion.div 
+                    className="pd-layout"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
 
                     {/* ══ Main ══ */}
                     <main className="pd-main">
@@ -206,7 +212,7 @@ const PublicationDetail = () => {
                         </Link>
                     </aside>
 
-                </div>
+                </motion.div>
             </div>
         </div>
     );

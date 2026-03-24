@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
 import './Auth.css';
 
 const Login = () => {
@@ -45,7 +47,12 @@ const Login = () => {
             <div className="auth-orb auth-orb-2" />
             <div className="auth-grid" />
 
-            <div className={`auth-card glass-card anim-1${loading ? ' auth-card--blur' : ''}`}>
+            <motion.div 
+                className={`auth-card glass-card anim-1${loading ? ' auth-card--blur' : ''}`}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+            >
                 {/* Header */}
                 <div className="auth-header">
                     <Link to="/" className="auth-logo">
@@ -117,7 +124,7 @@ const Login = () => {
                     <span style={{ color: 'var(--text-muted)' }}>Pas encore de compte ?</span>
                     <Link to="/register" className="auth-link">S'inscrire gratuitement →</Link>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

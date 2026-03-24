@@ -9,17 +9,18 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ============================================================
 -- NETTOYAGE DES TABLES (ordre inverse des dépendances)
 -- ============================================================
-TRUNCATE TABLE audit_logs;
-TRUNCATE TABLE publication_domain;
-TRUNCATE TABLE publication_researcher;
-TRUNCATE TABLE researcher_domain;
-TRUNCATE TABLE home_content;
-TRUNCATE TABLE highlights;
-TRUNCATE TABLE actualites;
-TRUNCATE TABLE publications;
-TRUNCATE TABLE researchers;
-TRUNCATE TABLE domains;
-TRUNCATE TABLE users;
+DELETE FROM audit_logs;
+DELETE FROM publication_domain;
+DELETE FROM publication_researcher;
+DELETE FROM researcher_domain;
+DELETE FROM home_content;
+DELETE FROM highlights;
+DELETE FROM actualites;
+DELETE FROM publications;
+DELETE FROM researchers;
+DELETE FROM domains WHERE parent_id IS NOT NULL;
+DELETE FROM domains;
+DELETE FROM users;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -362,32 +363,32 @@ INSERT INTO highlights (id, titre, description, image_url, date_creation, actif)
 (1,
  'BreastNet-TN : IA pour la détection du cancer du sein',
  'Réseau neuronal convolutif tunisien atteignant 97% d''AUC pour la détection précoce du cancer du sein sur mammographies numériques. Collaboration INSAT–Hôpital Charles Nicolle.',
- 'https://iatechnology.tn/images/highlights/breastnet.jpg',
+ 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
  '2024-06-10 10:00:00', true),
 
 (2,  'AraBERT-Fake : Détection de fake news en arabe dialectal',
  'Modèle transformeur spécialisé pour identifier les fausses informations en arabe tunisien. Dataset de 120 000 articles annotés, précision de 94,2%.',
- 'https://iatechnology.tn/images/highlights/arabertfake.jpg',
+ 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=800',
  '2024-02-28 09:00:00', true),
 
 (3,  'Smart Grid Multi-Agents : Énergie intelligente par IA',
  'Système multi-agents optimisant la distribution d''énergie dans les réseaux électriques tunisiens intégrant solaire et éolien. Réduction de 23% de la consommation en heures de pointe.',
- 'https://iatechnology.tn/images/highlights/smartgrid.jpg',
+ 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
  '2024-05-20 11:00:00', true),
 
 (4,  'LexAra-QA : Assistant juridique pour la législation tunisienne',
  'Système de questions-réponses basé sur RAG permettant aux citoyens de consulter la législation tunisienne en langue arabe naturelle. Interface intuitive et mises à jour en temps réel.',
- 'https://iatechnology.tn/images/highlights/lexara.jpg',
+ 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800',
  '2024-06-01 12:00:00', true),
 
 (5,  'Hackathon IA 2024 : Innovation et compétition estudiantine',
  '480 participants, 120 équipes, 30 000 DT de prix. Le Hackathon National IA 2024 a révélé des talents exceptionnels dans la détection de maladies agricoles et la robotique autonome.',
- 'https://iatechnology.tn/images/highlights/hackathon2024.jpg',
+ 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=800',
  '2024-04-08 10:00:00', true),
 
 (6,  'Fédérated Learning IIoT : Maintenance prédictive sans partage de données',
  'Framework révolutionnaire permettant à des usines concurrentes de collaborer à l''entraînement d''IA pour la maintenance prédictive sans divulguer leurs données de production.',
- 'https://iatechnology.tn/images/highlights/federated.jpg',
+ 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
  '2024-03-01 09:00:00', true);
 
 -- ============================================================
@@ -398,7 +399,7 @@ INSERT INTO home_content (id, cle, libelle, valeur, type, section, actif, date_m
 (2,  'hero_subtitle',        'Sous-titre',                  'Découvrez les publications, les chercheurs et les innovations IA de Tunisie',         'TEXT', 'HERO',   true, '2024-01-15 10:00:00'),
 (3,  'hero_button_label',    'Texte du bouton principal',   'Explorer les publications',                                                           'TEXT', 'HERO',   true, '2024-01-15 10:00:00'),
 (4,  'hero_button_url',      'Lien du bouton principal',    '/publications',                                                                       'URL',  'HERO',   true, '2024-01-15 10:00:00'),
-(5,  'hero_image_url',       'Image de fond hero',          'https://iatechnology.tn/images/hero-bg.jpg',                                         'URL',  'HERO',   true, '2024-01-15 10:00:00'),
+(5,  'hero_image_url',       'Image de fond hero',          'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200',                                         'URL',  'HERO',   true, '2024-01-15 10:00:00'),
 (6,  'stats_publications',   'Nombre de publications',      '25',                                                                                  'TEXT', 'HERO',   true, '2024-06-15 10:00:00'),
 (7,  'stats_researchers',    'Nombre de chercheurs',        '20',                                                                                  'TEXT', 'HERO',   true, '2024-06-15 10:00:00'),
 (8,  'stats_domains',        'Nombre de domaines',          '19',                                                                                  'TEXT', 'HERO',   true, '2024-06-15 10:00:00'),
