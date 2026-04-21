@@ -58,7 +58,9 @@ Un module d'Intelligence Artificielle intégré via une API dédiée, offrant de
 
 ## 🚀 Installation & Lancement
 .\mvnw spring-boot:run
+
 npm run dev 
+
 python app.py
 
 **Module :** Développement Web Avancé - Mini Projet  

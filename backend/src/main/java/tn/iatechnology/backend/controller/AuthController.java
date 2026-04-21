@@ -5,6 +5,7 @@ import tn.iatechnology.backend.dto.*;
 import tn.iatechnology.backend.entity.Role;
 import tn.iatechnology.backend.entity.User;
 import tn.iatechnology.backend.repository.UserRepository;
+import tn.iatechnology.backend.security.LoginRateLimiter;
 import tn.iatechnology.backend.security.jwt.JwtUtils;
 import tn.iatechnology.backend.security.services.UserDetailsImpl;
 import tn.iatechnology.backend.service.AuditLogService;
@@ -40,39 +41,57 @@ public class AuthController {
     @Autowired
     AuditLogService auditLogService;
 
+    @Autowired
+    LoginRateLimiter rateLimiter;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletRequest request) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()));
+        if (rateLimiter.isBlocked(loginRequest.getEmail())) {
+            return ResponseEntity.status(429)
+                    .body(new MessageResponse("Trop de tentatives. Compte bloqué pour 15 minutes."));
+        }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()));
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String role = userDetails.getAuthorities().iterator().next()
-                .getAuthority().replace("ROLE_", "");
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // ✅ CORRECTION : log de la connexion
-        auditLogService.log(
-                "LOGIN",
-                "USER",
-                userDetails.getId(),
-                "Connexion de l'utilisateur : " + userDetails.getEmail(),
-                request
-        );
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            String role = userDetails.getAuthorities().iterator().next()
+                    .getAuthority().replace("ROLE_", "");
 
-        return ResponseEntity.ok(new JwtResponse(
-                jwt,
-                userDetails.getId(),
-                userDetails.getEmail(),
-                userDetails.getNom(),
-                userDetails.getPrenom(),
-                role));
+            // Reset rate limiter on success
+            rateLimiter.loginSucceeded(loginRequest.getEmail());
+
+            // ✅ CORRECTION : log de la connexion
+            auditLogService.log(
+                    "LOGIN",
+                    "USER",
+                    userDetails.getId(),
+                    "Connexion de l'utilisateur : " + userDetails.getEmail(),
+                    request
+            );
+
+            return ResponseEntity.ok(new JwtResponse(
+                    jwt,
+                    userDetails.getId(),
+                    userDetails.getEmail(),
+                    userDetails.getNom(),
+                    userDetails.getPrenom(),
+                    role));
+
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            rateLimiter.loginFailed(loginRequest.getEmail());
+            return ResponseEntity.status(401)
+                    .body(new MessageResponse("Erreur: Email ou mot de passe incorrect!"));
+        }
     }
 
     @PostMapping("/signup")
