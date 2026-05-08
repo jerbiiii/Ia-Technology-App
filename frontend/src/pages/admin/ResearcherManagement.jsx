@@ -60,6 +60,19 @@ const ResearcherManagement = () => {
         }
     };
 
+    // IDs des users déjà liés à un chercheur
+    const linkedUserIds = new Set(
+        researchers
+            .filter(r => r.userId != null)
+            .map(r => r.userId)
+    );
+
+    // Pour le formulaire : afficher tous les users libres + le user déjà lié au chercheur en édition
+    const availableUsers = users.filter(u =>
+        !linkedUserIds.has(u.id) ||
+        (editingResearcher && u.id === editingResearcher.userId)
+    );
+
     const handleSearch = async () => {
         try {
             const params = {};
@@ -90,18 +103,30 @@ const ResearcherManagement = () => {
         }
     };
 
+    const buildPayload = () => ({
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email || null,
+        affiliation: formData.affiliation || null,
+        domainePrincipalId: formData.domainePrincipalId ? parseInt(formData.domainePrincipalId) : null,
+        autresDomainesIds: formData.autresDomainesIds.length > 0 ? formData.autresDomainesIds : null,
+        userId: formData.userId ? parseInt(formData.userId) : null,
+    });
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const payload = buildPayload();
             if (editingResearcher) {
-                await researcherService.update(editingResearcher.id, formData);
+                await researcherService.update(editingResearcher.id, payload);
             } else {
-                await researcherService.create(formData);
+                await researcherService.create(payload);
             }
             fetchData();
             resetForm();
         } catch (error) {
-            alert('Erreur lors de l\'enregistrement');
+            const msg = error.response?.data?.message || error.response?.data || error.message;
+            alert('Erreur lors de l\'enregistrement : ' + msg);
         }
     };
 
@@ -227,10 +252,17 @@ const ResearcherManagement = () => {
                                 <label>Compte Utilisateur lié</label>
                                 <select name="userId" value={formData.userId || ''} onChange={handleInputChange}>
                                     <option value="">Aucun compte lié</option>
-                                    {users.map(u => (
-                                        <option key={u.id} value={u.id}>{u.prenom} {u.nom} ({u.email})</option>
+                                    {availableUsers.map(u => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.prenom} {u.nom} ({u.email})
+                                        </option>
                                     ))}
                                 </select>
+                                {availableUsers.length === 0 && (
+                                    <small style={{ color: '#e53e3e', marginTop: '4px' }}>
+                                        ⚠️ Tous les utilisateurs sont déjà liés à un chercheur.
+                                    </small>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Autres domaines</label>

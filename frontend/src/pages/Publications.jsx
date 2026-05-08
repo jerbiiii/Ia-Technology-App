@@ -138,7 +138,11 @@ export default function Publications() {
         const next = new URLSearchParams(searchParams);
         if (value) next.set(key, value);
         else next.delete(key);
-        next.delete('page');
+        
+        // On reset à la page 1 seulement si on change un filtre AUTRE que la page
+        if (key !== 'page') {
+            next.delete('page');
+        }
         setSearchParams(next);
     };
 

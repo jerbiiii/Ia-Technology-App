@@ -14,6 +14,10 @@ const PublicationManagement = () => {
     const [domains, setDomains] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [filterDomaine, setFilterDomaine] = useState('');
+    const [filterChercheur, setFilterChercheur] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+    const PAGE_SIZE = 10;
     const [editingPublication, setEditingPublication] = useState(null);
     const [formData, setFormData] = useState({
         titre: '',
@@ -25,8 +29,6 @@ const PublicationManagement = () => {
         fichier: null
     });
     const [filePreview, setFilePreview] = useState(null);
-    const [classifyResult, setClassifyResult] = useState({}); // { [pubId]: { domaine, score } }
-    const [classifyLoading, setClassifyLoading] = useState({});
 
     useEffect(() => {
         fetchData();
@@ -41,8 +43,9 @@ const PublicationManagement = () => {
 
     const fetchData = async () => {
         try {
+            // Charge toutes les publications (size=1000 pour tout récupérer)
             const [pubs, res, dom] = await Promise.all([
-                publicationService.getAll(),
+                publicationService.getPage(0, 1000),
                 researcherService.getAll(),
                 domainService.getAll()
             ]);
@@ -157,28 +160,31 @@ const PublicationManagement = () => {
     };
 
 
-    const handleClassify = async (pub) => {
-        setClassifyLoading(prev => ({ ...prev, [pub.id]: true }));
-        try {
-            const res = await fetch('http://localhost:8080/api/public/ia/classify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ titre: pub.titre, resume: pub.resume || '' })
-            });
-            const data = await res.json();
-            setClassifyResult(prev => ({
-                ...prev,
-                [pub.id]: { domaine: data.domaine_principal, score: Math.round(data.score * 100) }
-            }));
-        } catch (e) {
-            setClassifyResult(prev => ({ ...prev, [pub.id]: { domaine: 'Erreur IA', score: 0 } }));
-        } finally {
-            setClassifyLoading(prev => ({ ...prev, [pub.id]: false }));
-        }
-    };
-
     const handleDownload = (id) => {
         publicationService.downloadFile(id).catch(err => alert('Erreur téléchargement'));
+    };
+
+    // ── Filtrage côté client ──────────────────────────────────────────────
+    const filteredPublications = publications.filter(pub => {
+        const matchDomaine = !filterDomaine ||
+            (pub.domainesNoms && Array.from(pub.domainesNoms).some(n =>
+                n.toLowerCase().includes(filterDomaine.toLowerCase())));
+        const matchChercheur = !filterChercheur ||
+            (pub.chercheursNoms && Array.from(pub.chercheursNoms).some(n =>
+                n.toLowerCase().includes(filterChercheur.toLowerCase())));
+        return matchDomaine && matchChercheur;
+    });
+
+    // ── Pagination côté client ──────────────────────────────────────────────
+    const totalPages = Math.ceil(filteredPublications.length / PAGE_SIZE);
+    const paginatedPublications = filteredPublications.slice(
+        currentPage * PAGE_SIZE,
+        (currentPage + 1) * PAGE_SIZE
+    );
+
+    const handleFilterChange = (setter) => (e) => {
+        setter(e.target.value);
+        setCurrentPage(0); // reset à la page 1 quand on filtre
     };
 
     if (loading) return <div className="loader">Chargement...</div>;
@@ -260,8 +266,51 @@ const PublicationManagement = () => {
                 )}
             </AnimatePresence>
 
+            {/* ── Barre de filtres ── */}
+            <div className="pub-filter-bar">
+                <div className="pub-filter-group">
+                    <label>🏷️ Filtrer par domaine</label>
+                    <select
+                        value={filterDomaine}
+                        onChange={handleFilterChange(setFilterDomaine)}
+                        className="pub-filter-select"
+                    >
+                        <option value="">Tous les domaines</option>
+                        {domains.map(d => (
+                            <option key={d.id} value={d.nom}>{d.nom}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="pub-filter-group">
+                    <label>👤 Filtrer par chercheur</label>
+                    <select
+                        value={filterChercheur}
+                        onChange={handleFilterChange(setFilterChercheur)}
+                        className="pub-filter-select"
+                    >
+                        <option value="">Tous les chercheurs</option>
+                        {researchers.map(r => (
+                            <option key={r.id} value={`${r.prenom} ${r.nom}`}>
+                                {r.prenom} {r.nom}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {(filterDomaine || filterChercheur) && (
+                    <button
+                        className="pub-filter-reset"
+                        onClick={() => { setFilterDomaine(''); setFilterChercheur(''); setCurrentPage(0); }}
+                    >
+                        ✕ Réinitialiser
+                    </button>
+                )}
+                <span className="pub-filter-count">
+                    {filteredPublications.length} / {publications.length} publication(s)
+                </span>
+            </div>
+
             <div className="publications-list">
-                {publications.map(pub => (
+                {paginatedPublications.map(pub => (
                     <motion.div
                         key={pub.id}
                         className="publication-card"
@@ -281,24 +330,60 @@ const PublicationManagement = () => {
                         <div className="card-actions">
                             <button onClick={() => handleEdit(pub)} className="btn-edit">Modifier</button>
                             <button onClick={() => handleDelete(pub.id)} className="btn-delete">Supprimer</button>
-                            <button
-                                onClick={() => handleClassify(pub)}
-                                className="btn-classify"
-                                disabled={classifyLoading[pub.id]}
-                                title="Classifier automatiquement par IA"
-                            >
-                                {classifyLoading[pub.id] ? '⏳ Classification...' : '🤖 Classifier IA'}
-                            </button>
                         </div>
-                        {classifyResult[pub.id] && (
-                            <div className="classify-badge">
-                                🏷️ <strong>{classifyResult[pub.id].domaine}</strong>
-                                <span className="classify-score"> ({classifyResult[pub.id].score}% confiance)</span>
-                            </div>
-                        )}
                     </motion.div>
                 ))}
             </div>
+
+            {/* ── Pagination ── */}
+            {totalPages > 1 && (
+                <div className="pub-pagination">
+                    <button
+                        className="pub-page-btn"
+                        onClick={() => setCurrentPage(0)}
+                        disabled={currentPage === 0}
+                    >
+                        «
+                    </button>
+                    <button
+                        className="pub-page-btn"
+                        onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                        disabled={currentPage === 0}
+                    >
+                        ‹
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i).map(i => (
+                        <button
+                            key={i}
+                            className={`pub-page-btn ${currentPage === i ? 'active' : ''}`}
+                            onClick={() => setCurrentPage(i)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+
+                    <button
+                        className="pub-page-btn"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                        disabled={currentPage === totalPages - 1}
+                    >
+                        ›
+                    </button>
+                    <button
+                        className="pub-page-btn"
+                        onClick={() => setCurrentPage(totalPages - 1)}
+                        disabled={currentPage === totalPages - 1}
+                    >
+                        »
+                    </button>
+                    <span className="pub-page-info">
+                        Page {currentPage + 1} / {totalPages}
+                        &nbsp;—&nbsp;
+                        {filteredPublications.length} publication(s)
+                    </span>
+                </div>
+            )}
         </motion.div>
     );
 };

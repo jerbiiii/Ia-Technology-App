@@ -42,6 +42,12 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (newData) => {
+        const updated = { ...user, ...newData };
+        localStorage.setItem('user', JSON.stringify(updated));
+        setUser(updated);
+    };
+
     const [shouldRedirect, setShouldRedirect] = useState(false);
 
     useEffect(() => {
@@ -73,7 +79,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider value={{
             user, isAuthenticated, isAdmin, isModerator,
-            login, logout, register,
+            login, logout, register, updateUser,
             shouldRedirect, setShouldRedirect,
         }}>
             {children}

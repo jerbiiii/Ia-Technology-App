@@ -19,6 +19,10 @@ class PublicationService {
         return api.get('/publications').then(res => res.data);
     }
 
+    getPage(page = 0, size = 10) {
+        return api.get('/publications', { params: { page, size } }).then(res => res.data);
+    }
+
     getById(id) {
         return api.get(`/publications/${id}`).then(res => res.data);
     }

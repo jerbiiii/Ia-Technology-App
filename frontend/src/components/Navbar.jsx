@@ -176,6 +176,9 @@ export default function Navbar() {
                                         <Link to="/dashboard" className="navbar__dropdown-item" role="menuitem">
                                             <IconDash /> Dashboard
                                         </Link>
+                                        <Link to="/profile" className="navbar__dropdown-item" role="menuitem">
+                                            <IconUser /> Mon Profil
+                                        </Link>
                                         {(isAdmin || isModerator) && (
                                             <Link to="/moderateur" className="navbar__dropdown-item" role="menuitem">
                                                 <IconShield /> Panel modérateur
@@ -243,6 +246,7 @@ export default function Navbar() {
                     {isAuthenticated ? (
                         <>
                             <Link to="/dashboard" className="navbar__mobile-link">Dashboard</Link>
+                            <Link to="/profile" className="navbar__mobile-link">Mon Profil</Link>
                             {(isAdmin || isModerator) && <Link to="/moderateur" className="navbar__mobile-link">Modérateur</Link>}
                             {isAdmin && <Link to="/admin" className="navbar__mobile-link">Administration</Link>}
                             <button className="navbar__mobile-link navbar__mobile-link--danger" onClick={handleLogout}>

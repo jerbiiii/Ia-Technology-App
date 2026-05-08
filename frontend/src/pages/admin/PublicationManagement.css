@@ -263,3 +263,144 @@
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Barre de filtres ── */
+.pub-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.2rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pub-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 200px;
+}
+
+.pub-filter-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pub-filter-select {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 0.92rem;
+    color: #1e293b;
+    background: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.pub-filter-select:focus {
+    outline: none;
+    border-color: var(--primary, #0066b4);
+    box-shadow: 0 0 0 3px rgba(0, 102, 180, 0.12);
+}
+
+.pub-filter-reset {
+    padding: 0.5rem 1rem;
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-end;
+}
+
+.pub-filter-reset:hover {
+    background: #fecaca;
+}
+
+.pub-filter-count {
+    align-self: flex-end;
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ── Pagination ── */
+.pub-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+}
+
+.pub-page-btn {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.pub-page-btn:hover:not(:disabled) {
+    border-color: var(--primary, #0066b4);
+    color: var(--primary, #0066b4);
+    background: #f0f9ff;
+}
+
+.pub-page-btn.active {
+    background: var(--primary, #0066b4);
+    color: #ffffff;
+    border-color: var(--primary, #0066b4);
+}
+
+.pub-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+.pub-page-info {
+    margin-left: 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .pub-pagination {
+        gap: 0.3rem;
+    }
+    .pub-page-btn {
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+    .pub-page-info {
+        width: 100%;
+        text-align: center;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}

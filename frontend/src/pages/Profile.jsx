@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import api from '../services/api'; // ✅ FIX: utilise le service api au lieu de fetch codé en dur
 import './Profile.css';
 
 const Profile = () => {
-    const { user } = useAuth();
+    const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
     const [formData, setFormData] = useState({
         nom: '',
         prenom: '',
@@ -51,7 +53,6 @@ const Profile = () => {
 
         setLoading(true);
         try {
-            // ✅ FIX: utilise api (Axios avec intercepteur JWT) au lieu de fetch hardcodé
             const payload = {
                 nom: formData.nom,
                 prenom: formData.prenom,
@@ -59,16 +60,23 @@ const Profile = () => {
             };
             if (formData.password) payload.password = formData.password;
 
-            const response = await api.put('/auth/profile', payload);
+            await api.put('/auth/profile', payload);
 
-            // Mettre à jour le localStorage
-            const stored = JSON.parse(localStorage.getItem('user') || '{}');
-            const updated = { ...stored, nom: formData.nom, prenom: formData.prenom, email: formData.email };
-            localStorage.setItem('user', JSON.stringify(updated));
+            // Mettre à jour le contexte global
+            updateUser({
+                nom: formData.nom,
+                prenom: formData.prenom,
+                email: formData.email
+            });
 
             setMessage('Profil mis à jour avec succès !');
             setMsgType('success');
             setFormData(f => ({ ...f, password: '', confirmPassword: '' }));
+
+            // Redirection après 1.5s pour laisser le temps de lire le message
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1500);
         } catch (err) {
             setMessage(err.response?.data?.message || 'Erreur lors de la mise à jour.');
             setMsgType('error');
