@@ -68,11 +68,12 @@ ACTEURS ET LEURS DROITS D'ACCÈS
   ⚠️ PAS d'accès à : gestion des comptes, chercheurs, publications scientifiques
 
 🟢 UTILISATEUR CONNECTÉ (role: USER)
-  Accès aux fonctionnalités de recherche et consultation :
+  Accès aux fonctionnalités de recherche, consultation et contribution :
   - Inscription et gestion de son profil personnel
   - Recherche de publications (par domaine, nom de chercheur, mots-clés)
   - Consultation et TÉLÉCHARGEMENT des publications
-  ⚠️ PAS d'accès à : fonctions d'administration ou de modération
+  - CRÉATION de ses propres publications depuis son tableau de bord
+  ⚠️ PAS d'accès à : fonctions d'administration système ou de modération globale
 
 ⚪ VISITEUR (non connecté)
   Accès très limité :
@@ -380,7 +381,7 @@ def chat():
     role_labels = {
         "ADMIN": "🔴 ADMINISTRATEUR — accès complet à toutes les fonctionnalités.",
         "MODERATOR": "🟡 MODÉRATEUR — accès à la gestion du contenu éditorial uniquement.",
-        "USER": "🟢 UTILISATEUR CONNECTÉ — accès à la recherche et consultation des publications.",
+        "USER": "🟢 UTILISATEUR CONNECTÉ — accès à la recherche, consultation et CRÉATION de publications.",
         "VISITOR": "⚪ VISITEUR non connecté — accès à la page d'accueil uniquement, sans téléchargement ni recherche avancée."
     }
     role_info = role_labels.get(user_role.upper(), role_labels["VISITOR"])

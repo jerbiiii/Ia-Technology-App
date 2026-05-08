@@ -60,7 +60,7 @@ public class ResearcherController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('UTILISATEUR')")
     public ResponseEntity<ResearcherDTO> updateResearcher(
             @PathVariable Long id,
             @Valid @RequestBody ResearcherDTO researcherDTO) {   // CORRECTION : @Valid ajouté

@@ -98,7 +98,7 @@ public class PublicationController {
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATEUR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATEUR') or hasRole('UTILISATEUR')")
     public ResponseEntity<PublicationResponse> createPublication(
             @RequestPart("publication") PublicationRequest request,
             @RequestPart(value = "fichier", required = false) MultipartFile fichier) throws IOException {
@@ -110,7 +110,7 @@ public class PublicationController {
     }
 
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATEUR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATEUR') or hasRole('UTILISATEUR')")
     public ResponseEntity<PublicationResponse> updatePublication(
             @PathVariable Long id,
             @RequestPart("publication") PublicationRequest request,

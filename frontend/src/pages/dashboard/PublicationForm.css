@@ -1,0 +1,124 @@
+.dashboard-publication-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--bg-card, #fff);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-publication-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dashboard-publication-form label {
+    font-weight: 600;
+    color: var(--text-main, #1e1b4b);
+    font-size: 0.95rem;
+}
+
+.dashboard-publication-form input[type="text"],
+.dashboard-publication-form input[type="date"],
+.dashboard-publication-form textarea,
+.dashboard-publication-form select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-publication-form input:focus,
+.dashboard-publication-form textarea:focus,
+.dashboard-publication-form select:focus {
+    outline: none;
+    border-color: var(--primary-color, #6366f1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.dashboard-publication-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.dashboard-publication-form .multi-select {
+    height: 120px;
+}
+
+.dashboard-publication-form small {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.dashboard-publication-form .file-input-wrapper {
+    position: relative;
+}
+
+.dashboard-publication-form input[type="file"] {
+    display: none;
+}
+
+.dashboard-publication-form .file-label {
+    display: block;
+    padding: 1rem;
+    border: 2px dashed var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+
+.dashboard-publication-form .file-label:hover {
+    border-color: var(--primary-color, #6366f1);
+    background: rgba(99, 102, 241, 0.05);
+    color: var(--primary-color, #6366f1);
+}
+
+.dashboard-publication-form .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.dashboard-publication-form .btn-primary {
+    background: var(--primary-color, #6366f1);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.dashboard-publication-form .btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.dashboard-publication-form .btn-secondary {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dashboard-publication-form .btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+    .dashboard-publication-form .form-row {
+        grid-template-columns: 1fr;
+    }
+}

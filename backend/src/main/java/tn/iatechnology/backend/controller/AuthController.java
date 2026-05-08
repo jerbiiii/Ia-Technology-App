@@ -4,6 +4,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import tn.iatechnology.backend.dto.*;
 import tn.iatechnology.backend.entity.Role;
 import tn.iatechnology.backend.entity.User;
+import tn.iatechnology.backend.entity.Researcher;
+import tn.iatechnology.backend.repository.ResearcherRepository;
 import tn.iatechnology.backend.repository.UserRepository;
 import tn.iatechnology.backend.security.LoginRateLimiter;
 import tn.iatechnology.backend.security.jwt.JwtUtils;
@@ -43,6 +45,9 @@ public class AuthController {
 
     @Autowired
     LoginRateLimiter rateLimiter;
+
+    @Autowired
+    ResearcherRepository researcherRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(
@@ -110,6 +115,14 @@ public class AuthController {
         user.setDateInscription(LocalDateTime.now());
 
         userRepository.save(user);
+
+        // Créer automatiquement un profil chercheur associé
+        Researcher researcher = new Researcher();
+        researcher.setNom(user.getNom());
+        researcher.setPrenom(user.getPrenom());
+        researcher.setEmail(user.getEmail());
+        researcher.setUser(user);
+        researcherRepository.save(researcher);
 
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès!"));
     }
@@ -179,6 +192,14 @@ public class AuthController {
         user.setRole(signUpRequest.getRole() != null ? signUpRequest.getRole() : Role.UTILISATEUR);
         user.setDateInscription(LocalDateTime.now());
         userRepository.save(user);
+
+        // Créer automatiquement un profil chercheur associé
+        Researcher researcher = new Researcher();
+        researcher.setNom(user.getNom());
+        researcher.setPrenom(user.getPrenom());
+        researcher.setEmail(user.getEmail());
+        researcher.setUser(user);
+        researcherRepository.save(researcher);
 
         return ResponseEntity.ok(new MessageResponse("Utilisateur créé avec succès"));
     }

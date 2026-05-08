@@ -114,8 +114,8 @@ const getWelcome = (role) => {
             chips: ['📰 Gérer les actualités', '📢 Publier une annonce', '🔍 Chercher des publications', '🌟 Projets récents'],
         },
         USER: {
-            content: 'Bonjour ! 👋 Je suis **ARIA**, votre assistant de recherche IA-Technology.\n\nJe peux vous aider à :\n• 🔍 Trouver des publications scientifiques\n• 👨‍🔬 Découvrir les chercheurs\n• 📥 Télécharger des documents\n\nVoulez-vous que je vous guide dans votre recherche ?',
-            chips: ['🔍 Chercher des publications', '🎯 Recherche guidée par intérêts', '👨‍🔬 Voir les chercheurs', '📚 Toutes les publications'],
+            content: 'Bonjour ! 👋 Je suis **ARIA**, votre assistant de recherche IA-Technology.\n\nJe peux vous aider à :\n• 🔍 Trouver des publications scientifiques\n• 👨‍🔬 Découvrir les chercheurs\n• 📥 Télécharger des documents\n• ✍️ Publier vos propres travaux depuis votre tableau de bord\n\nVoulez-vous que je vous guide dans votre recherche ?',
+            chips: ['🔍 Chercher des publications', '✍️ Créer une publication', '👨‍🔬 Voir les chercheurs', '📚 Toutes les publications'],
         },
         VISITOR: {
             content: 'Bienvenue ! 👋 Je suis **ARIA**, l\'assistant de la plateforme IA-Technology.\n\nJe peux vous montrer ce que nous proposons. Pour accéder à la recherche avancée et au téléchargement, vous devrez vous connecter.\n\nQue souhaitez-vous découvrir ?',
@@ -162,6 +162,7 @@ const NAV_CHIPS = {
     '📚 Publications publiques': '/publications',
     '📖 Voir tout': '/publications',
     '👨‍🔬 Les chercheurs': '/researchers',
+    '✍️ Créer une publication': '/dashboard',
     '� Se connecter': '/login',
     '📝 S\'inscrire': '/register',
 };
